@@ -1,9 +1,12 @@
 package it.polito.tdp.genes;
 
 import java.net.URL;
+import java.util.List;
 import java.util.ResourceBundle;
 
+import it.polito.tdp.genes.model.Edge;
 import it.polito.tdp.genes.model.Model;
+import it.polito.tdp.genes.model.Statistica;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -27,7 +30,7 @@ public class FXMLController {
     private Button btnRicerca;
 
     @FXML
-    private ComboBox<?> boxLocalizzazione;
+    private ComboBox<String> boxLocalizzazione;
 
     @FXML
     private TextArea txtResult;
@@ -35,11 +38,25 @@ public class FXMLController {
     @FXML
     void doRicerca(ActionEvent event) {
 
+    	txtResult.clear();
+    	String l = boxLocalizzazione.getValue();
+    	List<String> result = this.model.calcolaCammino(l);
+    	
+    	txtResult.appendText("Cammino: \n\n");
+    	for(Edge e : this.model.getBestCammino()) {
+    		txtResult.appendText(e.toString()+"\n");
+    	}
+    	txtResult.appendText("Peso totale: "+this.model.lunghezza(result)+"\n\n");
     }
 
     @FXML
     void doStatistiche(ActionEvent event) {
-
+    	String localization = boxLocalizzazione.getValue();
+    	List<Statistica> result = this.model.doStatistiche(localization);
+    	txtResult.appendText("Adiacenti a: "+localization+ "\n\n");
+    	for(Statistica s : result) {
+    		txtResult.appendText(s.toString());
+    	}
     }
 
     @FXML
@@ -53,5 +70,14 @@ public class FXMLController {
 
 	public void setModel(Model model) {
 		this.model = model;
+		txtResult.clear();
+    	this.model.creaGrafo();
+    	if(this.model.isGrafoCreato()) {
+    		txtResult.setText("GRAFO CREATO!\n\n");
+    		txtResult.appendText("#Vertici: "+ this.model.getNVertici()+"\n");
+    		txtResult.appendText("#Archi: "+ this.model.getNArchi()+"\n\n");
+    		
+    		boxLocalizzazione.getItems().addAll(this.model.getVertici());
+    	}
 	}
 }
